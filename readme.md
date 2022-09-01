@@ -18,7 +18,11 @@ To install, execute the install.sh script
 sudo bash install.sh
 ```
 
-Now you should have the application running as a horus service.
+Now you should have the application running as a horus service. You could access the application using your browser:
+
+```
+http://<IP_pi0>:5000/
+```
 
 Then you'd like to configure your raspberry pi to work as an access point to connect to it during your engagement. I used the __raspap__ tool to do that (https://github.com/RaspAP/raspap-webgui)
 
