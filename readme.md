@@ -27,3 +27,5 @@ curl -sL https://install.raspap.com | bash
 ```
 
 (Don't forget to set the "WLAN country" option using __sudo raspi-config__)
+
+![](images/screen.png)
