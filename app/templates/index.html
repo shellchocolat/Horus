@@ -1,0 +1,219 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block content %}
+
+<script>
+    function submit_form(){
+        var camera_mode = document.getElementById("picture_radio").checked; //true (picture), false (video)
+        var filename = document.getElementById("filename").value;
+        var camera_state = document.getElementById("cam_state").checked;
+
+        j = {
+            camera_mode: camera_mode,
+            filename: filename,
+            camera_state: camera_state
+        };
+
+        url = document.location.origin;
+		//console.log(url)
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(j)
+        })
+        .then(function(response) {
+            console.log(response.blob())
+			/*if(camera_mode == true){
+				location.replace(url + "/pictures")
+			} else {
+				location.replace(url + "/videos")
+			}*/
+			//location.reload()
+			if(camera_mode == true) { // picture
+				location.replace(url + "/pictures")
+				document.getElementById("cam_state").checked = false; // because it won't wokr with Jinja2 why?
+			} else {
+				location.replace(url + "/videos")
+				document.getElementById("cam_state").checked = true; // because it won't wokr with Jinja2 why?
+			}
+        });
+    }
+
+    function delete_file(filename){
+
+        j = {
+            filename: filename,
+        };
+        //console.log(j)
+
+        url = document.location.origin + "/file";
+		//console.log(url)
+
+        fetch(url, {
+            method: "DELETE",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(j)
+        })
+        .then(function(response) {
+            console.log(response.blob())
+            location.reload()
+        });
+    }
+
+    function rename_file(old_filename, new_filename){
+
+        //console.log(old_filename)
+        //console.log(new_filename)
+
+        j = {
+            old_filename: old_filename,
+            new_filename: new_filename,
+        };
+        //console.log(j)
+
+        url = document.location.origin + "/file";
+		//console.log(url)
+		
+		if(new_filename != "" && new_filename.replace("new-", "") != old_filename){
+	        fetch(url, {
+    	        method: "PUT",
+        	    headers: {
+            	    'Accept': 'application/json',
+                	'Content-Type': 'application/json'
+	            },
+    	        body: JSON.stringify(j)
+        	})
+	        .then(function(response) {
+    	        console.log(response.blob())
+        	    location.reload()
+	        });
+		} else {
+			if(old_filename.includes("pic-")){
+				document.getElementById("new-"+old_filename).value = old_filename.replace("pic-", "")
+			}
+			if(old_filename.includes("vid-")){
+				document.getElementById("new-"+old_filename).value = old_filename.replace("vid-", "")
+			}
+		}
+
+    }
+</script>
+
+<div class="column is-8 is-offset-2"> <!-- nice for mobile phone -->
+    <div class="box has-background-white">
+        <form> <!-- submitted with javascript, function submit_form()-->
+            <div class="field">
+                <input class="is-checkradio is-small" id="picture_radio" type="radio" name="camera_mode" value="picture" checked="checked">
+                <label for="picture_radio">Picture</label>
+            </div>
+            <div class="field">
+                <input class="is-checkradio is-small" id="video_radio" type="radio" name="camera_mode" value="video">
+                <label for="video_radio">Video</label>
+            </div>
+
+            <div class="field">
+                <input class="input" type="text" id="filename" name="filename" placeholder="filename">
+            </div>
+            
+            <div class="field">
+                {% if camera_on==true %}
+                    <input id="cam_state" type="checkbox" name="switchRtlExample" class="switch is-rtl" checked="checked" onclick="submit_form()">
+                {% else %}
+                    <input id="cam_state" type="checkbox" name="switchRtlExample" class="switch is-rtl" onclick="submit_form()">
+                {% endif %}
+                <label for="cam_state">Camera </label>
+            </div>
+
+        </form>
+  
+    </div>
+</div>
+
+
+<div class="column is-8 is-offset-2"> <!-- nice for mobile phone -->
+
+    <div class="buttons is-right">
+        <form method="GET" action="/pictures">
+            <a class="button is-info" href={{ url_for('main.list_pictures') }}>Pictures</a>
+        </form>
+        <form method="GET" action="/videos">
+            <a class="button is-danger" href={{ url_for('main.list_videos') }}>Videos</a>
+        </form>
+    </div>
+
+	<div class="box has-background-white">
+		<table id="result_table" class="table is-fullwiidth is-scrollable">
+		{% for f in pictures %}
+			<tr>
+				<td>
+						<input class="input" type="text" id="new-pic-{{f}}" name="filename" placeholder="{{ f }}" value="{{ f }}">
+				</td>
+                <td>
+                    <span class="icon">
+						<figure class='icon is-clickable'>
+					    	<img src='/static/images/pen-solid.svg' onclick="rename_file('pic-{{f}}', document.getElementById('new-pic-{{f}}').value)">
+						</figure>
+					</span>
+                </td>
+                <td>
+                    <span class="icon">
+					    <figure class='icon is-clickable'>
+						    <img src='/static/images/trash-can-solid.svg' onclick="delete_file('pic-{{f}}')">
+					    </figure>
+				    </span>
+                </td>
+				<td><img src="/static/pictures/{{ f }}.png" alt="image not found" width="112" height="28"></td>
+                <td>
+                    <span class="icon">
+					    <figure class='icon is-clickable'>
+						    <img src='/static/images/eye-solid.svg' onclick="view_file('pic-{{f}}')">
+					    </figure>
+				    </span>
+                </td>
+			</tr>
+		{% endfor %}
+
+		{% for f in videos %}
+			<tr>
+				<td>
+						<input class="input" type="text" id="new-vid-{{f}}" name="filename" placeholder="{{ f }}" value="{{ f }}">
+				</td>
+                <td>
+                    <span class="icon">
+						<figure class='icon is-clickable'>
+					    	<img src='/static/images/pen-solid.svg' onclick="rename_file('vid-{{f}}', document.getElementById('new-vid-{{f}}').value)">
+						</figure>
+					</span>
+                </td>
+                <td>
+                    <span class="icon">
+					    <figure class='icon is-clickable'>
+						    <img src='/static/images/trash-can-solid.svg' onclick="delete_file('vid-{{f}}')">
+					    </figure>
+				    </span>
+                </td>
+				<td><img src="/static/videos/{{ f }}.png" alt="image not found" width="112" height="28"></td>
+                <td>
+                    <span class="icon">
+					    <figure class='icon is-clickable'>
+						    <img src='/static/images/eye-solid.svg' onclick="view_file('vid-{{f}}')">
+					    </figure>
+				    </span>
+                </td>
+			</tr>
+		{% endfor %}
+		</table>
+	</div>
+  
+</div>
+
+{% endblock %}
+

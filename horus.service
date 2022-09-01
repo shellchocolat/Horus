@@ -1,0 +1,19 @@
+# put this service file into /lib/systemd/system/horus.service
+# sudo chmod 644 /lib/systemd/system/horus.service
+# sudo systemctl daemon-reload
+# sudo systemctl enable horus.service
+# sudo systemctl start horus.service
+# and test if it works
+
+[Unit]
+Description= horus service
+After=network.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/horus
+ExecStart=/home/pi/.local/bin/gunicorn -b 0.0.0.0:5000 "app:create_app()"
+Restart=always
+
+[Install]
+WantedBy=default.target
