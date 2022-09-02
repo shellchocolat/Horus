@@ -5,10 +5,21 @@
 
 <script>
     function submit_form(){
-        var camera_mode = document.getElementById("picture_radio").checked; //true (picture), false (video)
+        var picture_radio = document.getElementById("picture_radio").checked; //true (picture), false (video)
+        var video_radio = document.getElementById("video_radio").checked; //true (picture), false (video)
+        var preview_radio = document.getElementById("preview_radio").checked; //true (picture), false (video)
+        if (picture_radio == true) { 
+            camera_mode = "picture"
+        } else if (video_radio == true) {
+            camera_mode = "video"
+        } else {
+            camera_mode = "preview"
+        }
+        
         var filename = document.getElementById("filename").value;
         var camera_state = document.getElementById("cam_state").checked;
-
+        console.log(camera_mode)
+        
         j = {
             camera_mode: camera_mode,
             filename: filename,
@@ -17,7 +28,7 @@
 
         url = document.location.origin;
 		//console.log(url)
-
+        
         fetch(url, {
             method: "POST",
             headers: {
@@ -28,20 +39,24 @@
         })
         .then(function(response) {
             console.log(response.blob())
-			/*if(camera_mode == true){
-				location.replace(url + "/pictures")
-			} else {
-				location.replace(url + "/videos")
-			}*/
-			//location.reload()
-			if(camera_mode == true) { // picture
+			//if(camera_mode == true){
+			//	location.replace(url + "/pictures")
+			//} else {
+			//	location.replace(url + "/videos")
+			//}
+			////location.reload()
+			if(picture_radio == true) { // picture
 				location.replace(url + "/pictures")
 				document.getElementById("cam_state").checked = false; // because it won't wokr with Jinja2 why?
-			} else {
+			} else if (video_radio == true){
 				location.replace(url + "/videos")
 				document.getElementById("cam_state").checked = true; // because it won't wokr with Jinja2 why?
-			}
+			} else {
+                location.replace(url + "/videos")
+				document.getElementById("cam_state").checked = true; // because it won't wokr with Jinja2 why?
+            }
         });
+        
     }
 
     function delete_file(filename){
@@ -117,6 +132,10 @@
             <div class="field">
                 <input class="is-checkradio is-small" id="video_radio" type="radio" name="camera_mode" value="video">
                 <label for="video_radio">Video</label>
+            </div>
+            <div class="field">
+                <input class="is-checkradio is-small" id="preview_radio" type="radio" name="camera_mode" value="preview">
+                <label for="preview_radio">Preview</label>
             </div>
 
             <div class="field">

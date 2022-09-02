@@ -32,7 +32,7 @@ def do_camera_action():
     response = request.get_json()
 
     camera_state = response['camera_state'] # true, false
-    camera_mode = response['camera_mode'] # true (picture), false (video)
+    camera_mode = response['camera_mode'] # picture, video, preview
     filename = response['filename']
 
     if camera_state == True:
@@ -46,10 +46,10 @@ def do_camera_action():
         filename = secrets.token_hex(nbytes=5)
 
     # do action about the cam here
-    if camera_mode == True: # picture
+    if camera_mode == "picture":
         take_picture("./app/static/pictures/" + filename + ".png")
         camera_on = False
-    else: # video
+    elif camera_mode == "video":
         try:
             #record_video(filename, 5*60) # 5*60 = 5 min
             x = threading.Thread(target=record_video, args=(filename, 5*60, )) # 5*60 = 5 min
@@ -57,6 +57,15 @@ def do_camera_action():
             time.sleep(1)
         except Exception as e:
             print(str(e))
+        camera_on = True 
+    else:
+        # code preview here 
+        #try:
+        #    x = threading.Thread(target=preview_video)
+        #    x.start()
+        #    time.sleep(1)
+        #except Exception as e:
+        #    print(str(e))
         camera_on = True 
 
     return render_template("index.html", camera_on=camera_on)
@@ -143,8 +152,11 @@ def list_videos():
 
 def camera_status():
     # if recording, return True. If not, return False
-    return camera.recording
-    #return False
+    try:
+        r = camera.recording
+    except:
+        r = False
+    return r
 
 def record_video(filename, video_crunch):
     print("recording into " + filename)
