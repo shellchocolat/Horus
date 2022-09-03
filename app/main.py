@@ -45,6 +45,7 @@ def do_camera_action():
     if filename == "":
         filename = secrets.token_hex(nbytes=5)
 
+    print(camera_mode)
     # do action about the cam here
     if camera_mode == "picture":
         take_picture("./app/static/pictures/" + filename + ".png")
@@ -60,6 +61,8 @@ def do_camera_action():
         camera_on = True 
     else:
         # code preview here 
+        # https://github.com/EbenKouao/pi-camera-stream-flask/blob/master/main.py
+        # https://randomnerdtutorials.com/video-streaming-with-raspberry-pi-camera/
         #try:
         #    x = threading.Thread(target=preview_video)
         #    x.start()

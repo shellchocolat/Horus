@@ -6,12 +6,12 @@
 # and test if it works
 
 [Unit]
-Description= horus service
+Description= Horus service
 After=network.target
 
 [Service]
 User=pi
-WorkingDirectory=/home/pi/horus
+WorkingDirectory=/home/pi/Horus
 ExecStart=/home/pi/.local/bin/gunicorn -b 0.0.0.0:5000 "app:create_app()"
 Restart=always
 
