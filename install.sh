@@ -12,3 +12,6 @@ sudo systemctl daemon-reload
 sudo systemctl enable $service_name
 sudo systemctl start $service_name
 sudo systemctl status $service_name
+
+# disable the led on the camera
+sudo echo "disable_camera_led=1" >> /boot/config.txt
